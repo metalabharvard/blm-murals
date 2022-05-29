@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Black Lives Matter Mural Map</title>
+		<link rel="shortcut icon" type="image/jpg" href="../img/favicon.ico"/>
+		<style type="text/css">
+
+			/* TYPO */
+
+			/*@import url('https://fonts.googleapis.com/css2?family=Noto+Serif&display=swap');*/
+
+			@font-face {
+				font-family: 'VTC Du Bois Ritalic';
+				src: url('../fonts/VTC Du Bois Trial Fonts/Web/Ritalic/VTCDuBoisTrial-BoldRitalic.woff2') format('woff2');
+			}
+
+			* {
+				font-family: 'Noto Serif', serif;
+			}
+
+			body {
+				margin: 0px;
+			}
+
+			h1 {
+				font-family: 'VTC Du Bois Ritalic';
+			}
+
+
+			/* INTERFACE */
+
+			#topInterface{
+				width: 360px;
+				text-align: center;
+				margin-left: auto;
+				margin-right: auto;
+				margin-bottom: 20px;
+				z-index: 10;
+			}
+
+			#topInterface button, input, select {
+				pointer-events: auto;
+			}
+
+			#mapContainer{
+				/*overflow: scroll;*/
+				z-index: -1;
+				max-width: 100%;
+			}
+
+			#searchField {
+				border-width: 0 0 1px;
+				text-align: center;
+			}
+
+			button {
+				background-color: transparent;
+				border: 1px solid black;
+				cursor: pointer;
+				padding: 2px 10px 2px 10px;
+			}
+			button:disabled{
+				color: gray;
+				background-color:  lightgray;
+				/*text-decoration: line-through;*/
+				border: 1px solid lightgray;
+				cursor: default;
+			}
+
+			/*Remove Highlight Outline*/
+			input:focus,
+			select:focus,
+			textarea:focus,
+			button:focus {
+				outline: none;
+			}
+
+			/* DROPDOWN MENUES */
+
+			label {
+				font-size: 10px;
+			}
+
+			select {
+				/*// A reset of styles, including removing the default dropdown arrow*/
+				/*appearance: none;*/
+				/*// Additional resets for further consistency*/
+				background-color: transparent;
+				border-width: 0 0 1px;
+				font-size: 10px;
+				padding: 0 1em 0 0;
+				margin: 0;
+				cursor: inherit;
+				line-height: inherit;
+				cursor: pointer;
+			}
+
+			/* MAP VISUALIZATION */
+
+			#mapVis {
+				/*min-width: 900px;*/
+				white-space: nowrap;
+				overflow: scroll;
+				-ms-overflow-style: none;
+				scrollbar-width: none;
+			}
+			#mapVis::-webkit-scrollbar {
+				display: none; /* for Chrome, Safari, and Opera */
+			}
+
+			#vis {
+				overflow: scroll;
+				-ms-overflow-style: none;
+				scrollbar-width: none;
+				min-width: 1200px;
+			}
+			#vis::-webkit-scrollbar {
+				display: none; /* for Chrome, Safari, and Opera */
+			}
+
+			#vis svg {
+				min-width: 1200px;
+			}
+
+			.locationText {
+				cursor: pointer;
+				text-shadow: 0 .5px 0 rgba(255,255,255,1), 0 -.5px 0 rgba(255,255,255,1), .5px 0 0 rgba(255,255,255,1), -.5px 0 0 rgba(255,255,255,1);
+			}
+			.textPath:hover {
+				fill:  #D8213C;
+			}
+
+			#mapLegend {
+				max-width: 800px;
+				margin: auto;
+				display: flex;
+				flex-direction: row;
+				justify-content: space-around; /*space-between;*/
+				flex-wrap: wrap;
+				align-content: center;
+			}
+			#mapLegend img {
+				cursor: pointer;
+			}
+
+			#mapLegend img:hover {
+				-webkit-filter: grayscale(100%);
+				-moz-filter: grayscale(100%);
+				-o-filter: grayscale(100%);
+				-ms-filter: grayscale(100%);
+				filter: grayscale(100%); 
+				opacity: 0.5;
+			}
+
+			.deselected {
+				-webkit-filter: grayscale(100%);
+				-moz-filter: grayscale(100%);
+				-o-filter: grayscale(100%);
+				-ms-filter: grayscale(100%);
+				filter: grayscale(100%); 
+				opacity: 0.5;
+			}
+
+
+			#mapSlider {
+				text-align: center;
+			}
+
+
+
+			/* TEXT VISUALIZATION */
+
+			#textContainer {
+				display: flex;
+				flex-wrap: wrap;
+				flex-direction: row;
+				justify-content: center;
+				align-items:  center;
+				flex-grow:  2;
+				text-align: left;
+			}
+
+			.date {
+				flex-basis: 100%;
+				font-size: 9px;
+				text-align: center;
+				background: black;
+				color: white;
+			}
+
+			.mural {
+				margin: 10px;
+				cursor: pointer;
+				width: 300px;
+			}
+
+			.mural h3 {
+				margin: 0px;
+				line-height: 22px;
+				width: fit-content;
+			}
+			.mural p {
+				margin: 0px;
+				font-size: 9px;
+				max-width: 300px;
+			}
+
+			.mural:hover {
+				color:  #D8213C;
+			}
+
+			/* INFOBOX */
+
+			.infoBox {
+				position: fixed;
+				top: 50%; 
+				left: 50%; 
+				transform: translate(-50%, -50%);
+				overflow-y: scroll;
+				background: white;
+				border: 1px solid black;
+				padding: 20px;
+				max-height: 80%;
+				max-width: 80%;
+				width: 400px;
+			}
+
+			.close{
+				position: absolute;
+				top: 0px;
+				right: 0px;
+				width: 40px;
+				height: 40px;
+				cursor:pointer;
+			}
+
+			.close:before{
+				position:absolute;
+				top: 0px;
+				right: 10px;
+				width: 20px;
+				height: 20px;
+				font-size: 30px;
+				font-weight: 900;
+				content: "\00d7";
+			}
+
+			.close:hover {
+				color:  #D8213C;
+			}
+
+			.infoBox img{
+				height: auto;
+				width: 400px;
+				max-width: 100%;
+				display:block;
+				margin:auto;
+			}
+			@media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+				img { max-width: 100%; }
+			}
+
+			/* ipad */
+			@media only screen and (min-device-width : 768px) and (max-device-width : 1024px) {
+				img { max-width: 100%; }
+			}
+			
+		</style>
+	</head>
+	<body>
+
+		<div id="topInterface">
+			<h1>Black Lives Matter<br>Mural Mapping</h1>
+			<button id="mapView">Map</button> <button id="timelineView">Text</button>
+			<br><br>
+			<input id="searchField" type="text" placeholder="Search Mural Text">
+			<br>
+			<label for="filterDesign">Design Type</label>
+			<select name="filterDesign" id="filterDesign">
+				<option value="dF">All</option>
+				<option value="dFyellowstandard">yellow - standard</option>
+				<option value="dFyellownonstandard">yellow - nonstandard</option>
+				<option value="dFyellowhybrid">yellow - hybrid</option>
+				<option value="dFmosaiceclectic">mosaic/eclectic</option>
+				<option value="dFpanAfrican">pan-African</option>
+				<option value="dFrainbowneontranscolors">rainbow/neon/trans colors</option>
+				<option value="dF1colornonyellow">1-color (non-yellow)</option>
+				<option value="dFmulticolorbackground">multi-color/background</option>
+				<option value="dFuniquemedianontext">unique media/non-text</option>
+				<option value="dFother">other</option>
+			</select>
+			<br>
+			<label for="filterArtist">Black Artist(s) and/or Organizers?</label>
+			<select name="filterArtist" id="filterArtist">
+				<option value="bF">All</option>
+				<option value="bFYes">Yes</option>
+				<option value="bFNo">No</option>
+				<option value="bFUnsure">Unsure</option>
+				<option value="bFAnonymous">Anonymous</option>
+			</select>
+			<br>
+			<label for="filterSanctioned">Sanctioned / Unsanctioned</label>
+			<select name="filterSanctioned" id="filterSanctioned">
+				<option value="sF">All</option>
+				<option value="sFSanctionedcityled">Sanctioned - city led</option>
+				<option value="sFSanctionedorganizersgrantedpermit">Sanctioned - organizers granted permit</option>
+				<option value="sFSanctioned">Sanctioned</option>
+				<option value="sFNANongovernmentproperty">N/A - Non-government property</option>
+				<option value="sFTacitApproval">Tacit Approval</option>
+				<option value="sFUnsanctionednotremoved">Unsanctioned - not removed</option>
+				<option value="sFUnsanctionedimmediateremoval">Unsanctioned - immediate removal</option>
+				<option value="sFUnsanctioned">Unsanctioned</option>
+				<option value="sFOther">Other</option>
+				<option value="sFUnsure">Unsure</option>
+			</select>
+		</div>
+
+		<div id="mapContainer">
+			<div id="mapVis"></div>
+			<div id="slider"></div>
+		</div>
+		<div id="textContainer"></div>
+
+		<script src="../js/d3.v5.min.js"></script>
+		<script src="../js/d3-simple-slider.min.js"></script>
+		<script src="../vis/gradients.js"></script>
+		<script src="text.js"></script>
+		<script src="map.js"></script>
+		<script src="info.js"></script>
+		<script src="main.js"></script>
+
+	</body>
+</html> 
+
